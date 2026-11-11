@@ -433,14 +433,31 @@
 
   /* ---------------- 自适应缩放 ---------------- */
 
+  var raf = window.requestAnimationFrame
+    ? window.requestAnimationFrame.bind(window)
+    : function (fn) { return setTimeout(fn, 16); };
+  var fitPending = false;
+
   function fit() {
-    var availW = boardCol.clientWidth || BW;
-    var availH = Math.max(360, window.innerHeight - 70);
+    var vw = window.innerWidth || BW;
+    var vh = window.innerHeight || BH;
+    var phone = vw <= 560;
+    var narrow = vw <= 1060;
+    var padX = phone ? 16 : (narrow ? 24 : 0);
+    var padY = phone ? 150 : (narrow ? 110 : 60);
+    var availW = Math.max(240, vw - padX);
+    var availH = Math.max(240, vh - padY);
     var s = Math.min(1, availW / BW, availH / BH);
     if (!isFinite(s) || s <= 0) s = 1;
     boardBox.style.width = (BW * s) + 'px';
     boardBox.style.height = (BH * s) + 'px';
     boardWrap.style.transform = 'scale(' + s + ')';
+  }
+
+  function requestFit() {
+    if (fitPending) return;
+    fitPending = true;
+    raf(function () { fitPending = false; fit(); });
   }
 
   /* ---------------- 交互 ---------------- */
@@ -476,6 +493,7 @@
 
     var cell = game.board[i];
     if (cell && XQ.colorOf(XQ.topOf(cell)) === game.turn) {
+      if (selected === i) { selected = null; render(); return; }   // 再点一次取消
       selected = i;
       mode = 'stack';
       render();
@@ -572,9 +590,30 @@
     }
   });
 
-  window.addEventListener('resize', fit);
+  window.addEventListener('resize', requestFit);
+  window.addEventListener('orientationchange', function () {
+    requestFit();
+    setTimeout(fit, 180);
+    setTimeout(fit, 420);
+  });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', requestFit);
+    window.visualViewport.addEventListener('scroll', requestFit);
+  }
+  // 窗口尺寸可能在脚本初始化之后才变化（手机旋屏、地址栏收起、某些内嵌浏览器）
+  if (window.ResizeObserver) {
+    new window.ResizeObserver(requestFit).observe(document.documentElement);
+  }
+  window.addEventListener('load', requestFit);
 
   buildBoard();
   newGame();
   fit();
+  requestFit();
+  setTimeout(fit, 60);
+  setTimeout(fit, 300);
+
+  // 手机上把“对局设置”默认收起来，省得挡路
+  var sc = $('#settingsCard');
+  if (sc && window.innerWidth <= 560) sc.open = false;
 })();
