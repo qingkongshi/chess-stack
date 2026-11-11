@@ -1,0 +1,10 @@
+﻿{
+  "name": "xiangqi-stack",
+  "version": "0.1.0",
+  "private": true,
+  "description": "叠子象棋 —— 可以叠子的中国象棋变体",
+  "scripts": {
+    "test": "node tests/run-tests.js",
+    "smoke": "node tests/dom-smoke.js"
+  }
+}

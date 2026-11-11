@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>叠子象棋</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+  <div class="board-col" id="boardCol">
+    <div class="board-box" id="boardBox">
+      <div class="board-wrap" id="boardWrap">
+        <svg class="board-svg" id="boardSvg"></svg>
+        <div class="layer" id="hlLayer"></div>
+        <div class="layer" id="pieceLayer"></div>
+        <div class="layer tgt-layer" id="tgtLayer"></div>
+        <div class="layer fx-layer" id="fxLayer"></div>
+      </div>
+    </div>
+  </div>
+
+  <aside class="panel">
+    <header class="brand">
+      <h1>叠子象棋</h1>
+      <p>己方棋子可以叠在一起，整摞按顶子的走法行动。</p>
+    </header>
+
+    <div class="card status-card">
+      <div id="status" class="status">红方走棋</div>
+      <div id="substatus" class="substatus"></div>
+      <div class="btns">
+        <button id="undoBtn" class="btn ghost">悔棋</button>
+        <button id="newBtn" class="btn">新局</button>
+      </div>
+    </div>
+
+    <div class="card sel-card">
+      <div id="selText" class="sel-text">点选自己的棋子开始</div>
+      <div class="row" id="modeRow" hidden>
+        <button class="btn tiny" data-mode="stack">整摞一起走</button>
+        <button class="btn tiny" data-mode="top">只走上层</button>
+      </div>
+      <button id="switchBtn" class="btn tiny wide" hidden>换顶层（算一步棋）</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">对局设置</div>
+      <label class="field">
+        <span>模式</span>
+        <select id="modeSel">
+          <option value="pvp">双人同机</option>
+          <option value="pve-b" selected>我执红 · AI 执黑</option>
+          <option value="pve-r">我执黑 · AI 执红</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>AI 难度</span>
+        <select id="diffSel">
+          <option value="easy">简单</option>
+          <option value="normal" selected>普通</option>
+          <option value="hard">困难</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>叠子上限</span>
+        <select id="capSel">
+          <option value="2" selected>2 层（默认）</option>
+          <option value="3">3 层（实验）</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>士象走法</span>
+        <select id="aeSel">
+          <option value="free" selected>揭棋式（全盘可走）</option>
+          <option value="zone">分区（出防区才解禁）</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>战斗特效</span>
+        <select id="fxSel">
+          <option value="on" selected>开</option>
+          <option value="off">关</option>
+        </select>
+      </label>
+      <p class="hint">规则类设置改后点“新局”生效；特效开关即时生效。</p>
+    </div>
+
+    <div class="card moves-card">
+      <div class="card-title">着法记录</div>
+      <div class="movelist" id="movelist"></div>
+    </div>
+
+    <details class="card rules">
+      <summary>规则说明</summary>
+      <ul>
+        <li>己方棋子可以走到己方棋子所在格，形成一摞，这一手算一步棋。</li>
+        <li>整摞视为一个子：走法、吃法完全由<b>顶层</b>子决定，底层子不起作用。</li>
+        <li>整摞被吃时<b>全部</b>被吃掉；吃子时默认整摞一起过去，也可以只让顶层去吃、底子留在原地。</li>
+        <li>顶层可以单独走开（拆），剩下的子留在原地并露出新的顶层。</li>
+        <li>原地换顶层算一步棋，且这一步不能吃子。</li>
+        <li>将、帅不参与任何叠子。</li>
+        <li>士、象采用揭棋式走法：士斜走一格、象走田（象眼会被塞），不受九宫和河界限制，可以自由出入防区（可在“士象走法”里改回分区制）。</li>
+        <li>吃将或困毙获胜；三次重复局面判和。</li>
+        <li>炮、兵照样能吃掉整摞——低子换高子是这个玩法天然的反制手段。</li>
+      </ul>
+    </details>
+  </aside>
+</div>
+
+<script src="rules.js"></script>
+<script src="ai.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
